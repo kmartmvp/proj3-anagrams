@@ -90,12 +90,9 @@ def check():
     # Contains var "text"
     matched = WORDS.has(text)
 
-    # Will flash work? Might have to use a message id in JS/HTML and update
-    # via JQuery, ie https://stackoverflow.com/questions/24288380/flask-flash-and-url-for-with-ajax
+    # Have to use a message id in JS/HTML and update
+    # via JQuery instead of using flash, ie https://stackoverflow.com/questions/24288380/flask-flash-and-url-for-with-ajax
 
-    # Respond appropriately
-
-    # HANDLE MATCHES DISPLAY
     if matched and in_jumble and not (text in matches):
         # Cool, they found a new word
         matches.append(text)
@@ -114,19 +111,6 @@ def check():
     else:
         rslt = {"done": False, "new_word": False}
         return flask.jsonify(result=rslt)
-
-#################
-# Functions used within the templates
-#################
-
-
-@app.template_filter('filt')
-def format_filt(something):
-    """
-    Example of a filter that can be used within
-    the Jinja2 code
-    """
-    return "Not what you asked for"
 
 ###################
 #   Error handlers
