@@ -51,6 +51,7 @@ def index():
     app.logger.debug("At least one seems to be set correctly")
     return flask.render_template('vocab.html')
 
+
 @app.route("/success")
 def success():
     return flask.render_template('success.html')
@@ -62,7 +63,9 @@ def success():
 #   a JSON request handler
 #######################
 
-## should return a "result" in json, in which we can access messages and whether is anagram or not
+# should return a "result" in json, in which we can access messages and whether is anagram or not
+
+
 @app.route("/_check")
 def check():
     """
@@ -77,21 +80,22 @@ def check():
 
     # The data we need, from form and from cookie
 
-    text = flask.request.args.get("text", type = str) # Retrieve "attempt" from JQuery request
+    # Retrieve "attempt" from JQuery request
+    text = flask.request.args.get("text", type=str)
     jumble = flask.session["jumble"]
     matches = flask.session.get("matches", [])  # Default to empty list
 
     # Is it good?
     in_jumble = LetterBag(jumble).contains(text)
-    ## Contains var "text"
+    # Contains var "text"
     matched = WORDS.has(text)
 
-    ## Will flash work? Might have to use a message id in JS/HTML and update
-    ## via JQuery, ie https://stackoverflow.com/questions/24288380/flask-flash-and-url-for-with-ajax
-    
+    # Will flash work? Might have to use a message id in JS/HTML and update
+    # via JQuery, ie https://stackoverflow.com/questions/24288380/flask-flash-and-url-for-with-ajax
+
     # Respond appropriately
 
-    ## HANDLE MATCHES DISPLAY
+    # HANDLE MATCHES DISPLAY
     if matched and in_jumble and not (text in matches):
         # Cool, they found a new word
         matches.append(text)
@@ -99,21 +103,22 @@ def check():
         # Choose page:  Solved enough, or keep going?
         if len(matches) >= flask.session["target_count"]:
             rslt = {"redirect": "/success", "done": True}
-            return flask.jsonify(result = rslt)
+            return flask.jsonify(result=rslt)
         # If keep going, return different JSON that allows us to update
         # results with new word found.
         else:
             rslt = {"done": False, "new_word": True}
-            return flask.jsonify(result = rslt)
+            return flask.jsonify(result=rslt)
     # Essentially, do nothing. JQuery will do nothing with this response except
     # avoid conditionals
     else:
         rslt = {"done": False, "new_word": False}
-        return flask.jsonify(result = rslt)
+        return flask.jsonify(result=rslt)
 
 #################
 # Functions used within the templates
 #################
+
 
 @app.template_filter('filt')
 def format_filt(something):
