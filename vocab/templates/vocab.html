@@ -84,32 +84,54 @@
     <label for="attempt">Word:</label>
     <input id="attempt" name="attempt" type="text" width="15"
       autocomplete="off"  autofocus />
-    <input type="submit" name="try" />
   </form>
 </div></div>
 
 <br />
 
-{% if session.matches|length is not equalto 0  %}
+<!-- Update results here -->
 <h2>You found </h2>
-<p id="results">
-  {% for match in session.matches %}
-  {{ match }} 
-  {% endfor %}
-</p>
-{% endif %}
+<p id="results"></p>
 
 
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <!-- Mismatch, already found, etc. "flashed" from Python -->
-    {% for message in messages %}
-      <p class="message">{{ message }}</p>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
+<script>
+    // NOTE: Beginning of script essentially identical to provided minijax
+    // Suppress default form submission (like in minijax)
+    $("#entry").submit(function(event) { event.preventDefault(); });
+    
+    // Respond keystroke by keystroke to see if anagram formed (so far)
+    $("#attempt").keyup(function(event) {
+        var txt = $("#attempt").val();
+        var keycode = event.which;
+        // Convert keycode to string and store char
+        var letter = String.fromCharCode(keycode);
+    
+        // We only care about actual letters
+        if(! "ABCDEFGHIJKLMNOPQRSTUVWXYZ".includes(letter)) { return }
+    
+        // Request JSON about whether an anagram has been formed
+        // Using getJSON instead of $.ajax as getJSON is essentially a wrapper .ajax
+        //    Source: https://stackoverflow.com/questions/1076013/difference-between-getjson-and-ajax-in-jquery
+        $.getJSON("/_check", {text: txt}, function(data) {
+          // Boolean: check if user has found anagram
+          rsval = data.result.done
+          rsNewWord = data.result.new_word
+  
+          if(rsval) {
+            // Load a new document: https://www.w3schools.com/jsref/met_loc_assign.asp
+            window.location.assign(data.result.redirect);
+          }
+          if(rsNewWord) {
+            // Add successful word to results list
+            $("#results").append("<p>" + txt + "</p>");
+            // Reset the val after successful word find
+            $("#attempt").val("");
+          } 
+        }
+      );
+    });
+</script>
 
 
-
- </div> <!-- container -->
+</div> 
 </body> </html>
